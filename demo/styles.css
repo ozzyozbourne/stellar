@@ -1,0 +1,74 @@
+/* Hand-written, semantic, natively-nested CSS. References ONLY var(--token)
+   from the generated stellar.css — never a literal color/size (stellar.md §0,§13). */
+
+body {
+  font-family: var(--font-humanist);
+  font-size: var(--font-size-1);
+  line-height: var(--font-line-height-0);
+  letter-spacing: var(--font-letter-spacing-0);
+  color: var(--neutral-12);
+  background: var(--neutral-1);
+  padding: var(--size-5);
+  max-width: 70ch;
+  margin-inline: auto;
+}
+
+h1 {
+  font-size: var(--font-size-7);
+  line-height: var(--font-line-height--2);
+  color: var(--primary-9);
+  margin-block-end: var(--size-2);
+
+  & + p { color: var(--neutral-10); }
+}
+
+h2 {
+  font-size: var(--font-size-4);
+  color: var(--secondary-9);
+  margin-block: var(--size-4) var(--size-1);
+}
+
+.card {
+  background: var(--neutral-2);
+  border: 1px solid var(--neutral-4);
+  border-radius: var(--size-1);
+  padding: var(--size-3);
+  margin-block: var(--size-3);
+
+  & .label { font-size: var(--font-size--1); color: var(--neutral-9); }
+}
+
+button {
+  font-size: var(--font-size-0);
+  color: var(--primary-9-on);
+  background: var(--primary-9);
+  border: 0;
+  border-radius: var(--size--1);
+  padding: var(--size-1) var(--size-3);
+  cursor: pointer;
+
+  &:hover { background: var(--primary-10); }
+  &.ghost { background: transparent; color: var(--primary-9); border: 1px solid var(--primary-6); }
+}
+
+code {
+  font-family: var(--font-mono);
+  background: var(--code-bg);
+  color: var(--code-fg);
+  padding: 0 var(--size--2);
+  border-radius: var(--size--2);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--size--2);
+
+  & > div {
+    aspect-ratio: var(--aspect-ratio-square);
+    border-radius: var(--size--2);
+    display: grid;
+    place-items: center;
+    font-size: var(--font-size--2);
+  }
+}

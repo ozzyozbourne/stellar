@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stellar consumer demo</title>
+  <!-- The generated token sheet. When served via `stellar serve`, this is the
+       hot-swapped link; standalone it points at a built file. -->
+  <link id="stellar-css" rel="stylesheet" href="stellar.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Stellar</h1>
+  <p>A design-token compiler. This page is semantic, natively-nested CSS that
+     only ever says <code>var(--token)</code>.</p>
+
+  <h2>Components</h2>
+  <div class="card">
+    <div class="label">Card label</div>
+    <p>Spacing, radii, and color all come from generated tokens.</p>
+    <button>Primary action</button>
+    <button class="ghost">Secondary</button>
+  </div>
+
+  <h2>Primary ramp</h2>
+  <div class="swatches">
+    <div style="background:var(--primary-1);color:var(--primary-1-on)">1</div>
+    <div style="background:var(--primary-2);color:var(--primary-2-on)">2</div>
+    <div style="background:var(--primary-3);color:var(--primary-3-on)">3</div>
+    <div style="background:var(--primary-4);color:var(--primary-4-on)">4</div>
+    <div style="background:var(--primary-5);color:var(--primary-5-on)">5</div>
+    <div style="background:var(--primary-6);color:var(--primary-6-on)">6</div>
+    <div style="background:var(--primary-7);color:var(--primary-7-on)">7</div>
+    <div style="background:var(--primary-8);color:var(--primary-8-on)">8</div>
+    <div style="background:var(--primary-9);color:var(--primary-9-on)">9</div>
+    <div style="background:var(--primary-10);color:var(--primary-10-on)">10</div>
+    <div style="background:var(--primary-11);color:var(--primary-11-on)">11</div>
+    <div style="background:var(--primary-12);color:var(--primary-12-on)">12</div>
+  </div>
+</body>
+</html>

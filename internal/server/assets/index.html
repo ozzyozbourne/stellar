@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stellar — design-token editor</title>
+  <!-- Generated stylesheet, hot-swapped over Datastar SSE (§7). -->
+  <link id="stellar-css" rel="stylesheet">
+  <script src="/static/datastar.js" type="module"></script>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: var(--font-humanist, system-ui, sans-serif); margin: 0;
+           display: grid; grid-template-columns: 340px 1fr; min-height: 100vh; }
+    aside { padding: 1rem; border-right: 1px solid #8884; overflow-y: auto; max-height: 100vh; }
+    main { padding: 1rem 1.5rem; overflow-y: auto; max-height: 100vh; }
+    h1 { font-size: 1.1rem; margin: 0 0 .25rem; }
+    h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em;
+         opacity: .7; margin: 1.25rem 0 .5rem; }
+    label { display: grid; grid-template-columns: 1fr auto; gap: .5rem;
+            align-items: center; font-size: .8rem; margin: .35rem 0; }
+    input[type=number] { width: 6rem; }
+    .swatches { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin: .25rem 0 1rem; }
+    .swatch { aspect-ratio: 1; border-radius: 3px; display: grid; place-items: center; font-size: .6rem; }
+    .bars { display: grid; gap: 4px; }
+    .bar { height: 1.4rem; background: #6699ff; border-radius: 3px; }
+    .meter { font-variant-numeric: tabular-nums; font-size: .8rem; opacity: .8; }
+    iframe { width: 100%; height: 320px; border: 1px solid #8884; border-radius: 6px; }
+    .row { display: flex; gap: .5rem; flex-wrap: wrap; }
+    button { font: inherit; padding: .3rem .6rem; border-radius: 5px; border: 1px solid #8886;
+             background: #8881; cursor: pointer; }
+    code { font-family: var(--font-mono, ui-monospace, monospace); }
+  </style>
+</head>
+<body data-init="@get('/live-refresh')"
+      data-signals:theme="'light'"
+      data-attr:data-theme="$theme">
+
+  <aside>
+    <h1>Stellar</h1>
+    <div class="meter" id="meter">— tokens, — bytes</div>
+
+    <h2>Viewport</h2>
+    <label>min (px) <input type="number" data-cfg="viewport.min" step="1"></label>
+    <label>max (px) <input type="number" data-cfg="viewport.max" step="1"></label>
+    <label>base font (px) <input type="number" data-cfg="viewport.baseFont" step="1"></label>
+
+    <h2>Size scale</h2>
+    <label>base min (rem) <input type="number" data-cfg="size.baseMin" step="0.01"></label>
+    <label>base max (rem) <input type="number" data-cfg="size.baseMax" step="0.01"></label>
+    <label>min ratio <input type="number" data-cfg="size.minRatio" step="0.001"></label>
+    <label>max ratio <input type="number" data-cfg="size.maxRatio" step="0.001"></label>
+    <label>+ steps <input type="number" data-cfg="size.positiveSteps" step="1"></label>
+    <label>− steps <input type="number" data-cfg="size.negativeSteps" step="1"></label>
+
+    <h2>Font sizes</h2>
+    <label>min ratio <input type="number" data-cfg="fontsSizes.minRatio" step="0.001"></label>
+    <label>max ratio <input type="number" data-cfg="fontsSizes.maxRatio" step="0.001"></label>
+
+    <h2>Colors (seeds)</h2>
+    <label>primary <input type="text" data-cfg="colors.roles.primary.seed"></label>
+    <label>secondary <input type="text" data-cfg="colors.roles.secondary.seed"></label>
+    <label>neutral <input type="text" data-cfg="colors.roles.neutral.seed"></label>
+    <label>on Lc <input type="number" data-cfg="colors.apca.onLc" step="1"></label>
+    <label>dim Lc <input type="number" data-cfg="colors.apca.dimLc" step="1"></label>
+
+    <h2>Extract from image</h2>
+    <label>harmony
+      <select id="harmony">
+        <option>complement</option><option>triad</option>
+        <option>tetrad</option><option>analogous</option>
+      </select>
+    </label>
+    <input type="file" id="imgfile" accept="image/*">
+    <div class="swatches" id="candidates" style="grid-template-columns:repeat(4,1fr)"></div>
+
+    <h2>Sections</h2>
+    <div id="sections"></div>
+
+    <h2>Output</h2>
+    <div class="row">
+      <button data-on:click="$theme = $theme === 'light' ? 'dark' : 'light'">Toggle dark</button>
+      <a href="/assets/css/stellar/current" download="stellar.css"><button type="button">Export</button></a>
+    </div>
+  </aside>
+
+  <main>
+    <h2>Color ramp — primary</h2>
+    <div class="swatches" id="ramp"></div>
+    <h2>Type scale</h2>
+    <div class="bars" id="bars"></div>
+    <h2>Demo (live stylesheet)</h2>
+    <iframe id="demo" src="about:blank"></iframe>
+  </main>
+
+  <script type="module">
+    // --- config form <-> server ----------------------------------------
+    const get = (obj, path) => path.split('.').reduce((o,k)=>o?.[k], obj);
+    const set = (obj, path, val) => {
+      const ks = path.split('.'); const last = ks.pop();
+      let o = obj; for (const k of ks) o = o[k] ??= {};
+      o[last] = val;
+    };
+    let cfg = {};
+    const inputs = [...document.querySelectorAll('[data-cfg]')];
+
+    function coerce(el, raw) {
+      if (el.type === 'number') return raw === '' ? 0 : Number(raw);
+      if (el.type === 'checkbox') return el.checked;
+      return raw;
+    }
+    function fill() {
+      for (const el of inputs) {
+        const v = get(cfg, el.dataset.cfg);
+        if (v !== undefined) el.value = v;
+      }
+      // section toggles
+      const sx = document.getElementById('sections');
+      sx.innerHTML = '';
+      for (const [k, v] of Object.entries(cfg.sections ?? {})) {
+        const id = 'sec-' + k;
+        const l = document.createElement('label');
+        l.innerHTML = `${k}<input type="checkbox" id="${id}" ${v ? 'checked' : ''}>`;
+        l.querySelector('input').addEventListener('change', e => {
+          cfg.sections[k] = e.target.checked; push();
+        });
+        sx.appendChild(l);
+      }
+    }
+    let t;
+    function push() {
+      clearTimeout(t);
+      t = setTimeout(async () => {
+        const res = await fetch('/config', {
+          method: 'POST', headers: {'content-type':'application/json'},
+          body: JSON.stringify(cfg),
+        });
+        const { hash } = await res.json();
+        refreshPreview(hash);
+      }, 150);
+    }
+    for (const el of inputs) {
+      el.addEventListener('input', () => { set(cfg, el.dataset.cfg, coerce(el, el.value)); push(); });
+    }
+
+    // --- live preview helpers ------------------------------------------
+    async function refreshPreview(hash) {
+      const url = '/assets/css/stellar/' + (hash ?? 'current');
+      const css = await (await fetch(url)).text();
+      const count = (css.match(/--[a-z0-9-]+\s*:/gi) || []).length;
+      document.getElementById('meter').textContent =
+        `${count} tokens, ${new Blob([css]).size} bytes`;
+      // ramp swatches (read computed vars after the sheet applies)
+      requestAnimationFrame(() => {
+        const cs = getComputedStyle(document.documentElement);
+        const ramp = document.getElementById('ramp'); ramp.innerHTML = '';
+        for (let i = 1; i <= 12; i++) {
+          const c = cs.getPropertyValue('--primary-' + i).trim();
+          const on = cs.getPropertyValue('--primary-' + i + '-on').trim();
+          if (!c) continue;
+          const d = document.createElement('div');
+          d.className = 'swatch';
+          d.style.background = c; d.style.color = on; d.textContent = i;
+          ramp.appendChild(d);
+        }
+        const bars = document.getElementById('bars'); bars.innerHTML = '';
+        for (let n = -2; n <= 8; n++) {
+          const v = cs.getPropertyValue('--font-size-' + n).trim();
+          if (!v) continue;
+          const b = document.createElement('div');
+          b.className = 'bar';
+          b.style.height = `calc(${v} + .4rem)`;
+          b.textContent = ' font-size-' + n;
+          bars.appendChild(b);
+        }
+      });
+      // demo iframe links the live sheet
+      const demo = document.getElementById('demo');
+      demo.srcdoc = `<!doctype html><link rel="stylesheet" href="${url}">
+        <body style="font-family:var(--font-humanist,sans-serif);padding:1rem;
+          background:var(--neutral-1);color:var(--neutral-12)">
+        <h1 style="font-size:var(--font-size-6);color:var(--primary-8)">Stellar demo</h1>
+        <p style="font-size:var(--font-size-1);line-height:var(--font-line-height-0)">
+          Semantic, nested CSS that only references <code>var(--token)</code>.</p>
+        <button style="background:var(--primary-9);color:var(--primary-9-on);
+          border:0;padding:var(--size-1) var(--size-3);border-radius:var(--size--1)">
+          Primary action</button></body>`;
+    }
+
+    // --- palette extraction (§5.4) -------------------------------------
+    document.getElementById('imgfile').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const fd = new FormData();
+      fd.append('image', file);
+      const mode = document.getElementById('harmony').value;
+      const res = await fetch('/extract?harmony=' + mode, { method: 'POST', body: fd });
+      const { candidates, harmony } = await res.json();
+      const box = document.getElementById('candidates');
+      box.innerHTML = '';
+      for (const c of candidates) {
+        const d = document.createElement('div');
+        d.className = 'swatch';
+        d.style.background = c.css;
+        d.title = `${c.name} ${'★'.repeat(c.stars)} (${(c.population*100).toFixed(0)}%)`;
+        d.textContent = '★'.repeat(c.stars);
+        d.style.cursor = 'pointer';
+        d.addEventListener('click', () => {
+          // picking a candidate sets the role seeds via harmony
+          set(cfg, 'colors.roles.primary.seed', harmony[0] ?? c.css);
+          if (harmony[1]) set(cfg, 'colors.roles.secondary.seed', harmony[1]);
+          fill(); push();
+        });
+        box.appendChild(d);
+      }
+    });
+
+    // boot
+    (async () => {
+      cfg = await (await fetch('/config.json')).json();
+      fill();
+      refreshPreview('current');
+    })();
+  </script>
+</body>
+</html>
