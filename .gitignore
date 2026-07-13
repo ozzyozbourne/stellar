@@ -2,3 +2,7 @@
 /stellar.json
 demo/stellar.css
 /stellar-bin
+
+# Local credentials and environment configuration
+.env
+*.env
