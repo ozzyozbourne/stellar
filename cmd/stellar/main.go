@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/starfederation/stellar/internal/color"
@@ -104,6 +105,18 @@ func main() {
 				fmt.Printf("  %-11s %s\n", label, s.CSS())
 			}
 		}
+	case "usage":
+		// usage: report how the given sources use the generated tokens.
+		// Report-only by design — no purging (a cached ~10 KB sheet isn't
+		// worth breaking the "tokens are always there" contract).
+		if fs.NArg() == 0 {
+			fatal(fmt.Errorf("usage: stellar usage <files|dirs…>"))
+		}
+		sources, err := collectSources(fs.Args())
+		if err != nil {
+			fatal(err)
+		}
+		printUsage(generate.Usage(generate.TokenNames(buildCSS(cfg)), sources))
 	case "serve":
 		srv := server.New(cfg, *cfgPath)
 		fmt.Printf("stellar serving on http://localhost%s\n", *addr)
@@ -127,6 +140,60 @@ func buildCSS(cfg config.Config) string {
 		return min
 	}
 	return css
+}
+
+// collectSources reads the given files, walking directories for .css/.html.
+func collectSources(args []string) (map[string]string, error) {
+	sources := map[string]string{}
+	addFile := func(path string) error {
+		b, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		sources[path] = string(b)
+		return nil
+	}
+	for _, arg := range args {
+		info, err := os.Stat(arg)
+		if err != nil {
+			return nil, err
+		}
+		if !info.IsDir() {
+			if err := addFile(arg); err != nil {
+				return nil, err
+			}
+			continue
+		}
+		err = filepath.WalkDir(arg, func(path string, d os.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return err
+			}
+			switch strings.ToLower(filepath.Ext(path)) {
+			case ".css", ".html", ".htm":
+				return addFile(path)
+			}
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return sources, nil
+}
+
+func printUsage(rep generate.Report) {
+	fmt.Printf("%d tokens defined · %d used · %d unused\n\n",
+		rep.Defined, len(rep.Used), len(rep.Unused))
+	fmt.Println("family                     used / total")
+	for _, f := range rep.Families {
+		marker := ""
+		if f.Used == 0 {
+			marker = "  ← unused"
+		}
+		fmt.Printf("  %-24s %4d / %d%s\n", f.Family, f.Used, f.Total, marker)
+	}
+	fmt.Println("\nfully-unused families can often be dropped by disabling their section" +
+		"\n(report only — the cached stylesheet is cheap; nothing is purged)")
 }
 
 func stars(n int) string {
@@ -157,6 +224,7 @@ usage:
   stellar export --config stellar.json            print CSS to stdout
   stellar minify app.ts [-o app.min.js]           compile/minify a TS/JS/CSS asset
   stellar extract --image foo.png [--harmony complement]   extract a palette
+  stellar usage  <files|dirs…>                    report var(--token) usage (no purging)
   stellar serve  --config stellar.json --addr :7331
 `)
 }

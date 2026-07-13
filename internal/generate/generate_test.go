@@ -119,6 +119,80 @@ func TestBracesBalanced(t *testing.T) {
 	}
 }
 
+// §5.3 + §7 contract: every color partial exposes light in `:root,
+// [data-theme="light"]`, dark under the media query gated on
+// `:root:not([data-theme="light"])`, and dark again under `[data-theme="dark"]`
+// so the data-attr:data-theme toggle actually restyles.
+func TestThemeAttrBlocks(t *testing.T) {
+	css := Generate(config.Default())
+	for _, want := range []string{
+		`:root, [data-theme="light"] {`,
+		`:root:not([data-theme="light"]) {`,
+		`[data-theme="dark"] {`,
+		"color-scheme: light;",
+		"color-scheme: dark;",
+	} {
+		if !strings.Contains(css, want) {
+			t.Errorf("generated CSS missing theme block %q", want)
+		}
+	}
+	// The explicit-dark block must carry the same first token as the media
+	// dark block (same builder, both polarities emitted).
+	darkAttr := css[strings.Index(css, `[data-theme="dark"]`):]
+	if !strings.Contains(darkAttr, "--primary-1:") {
+		t.Error(`[data-theme="dark"] block missing role tokens`)
+	}
+}
+
+// §6 radius / border / animation families.
+func TestSimpleFamilies(t *testing.T) {
+	css := Generate(config.Default())
+	for _, want := range []string{
+		"--border-radius-1: 0.25rem;",
+		"--border-radius-5: 1.265625rem;",
+		"--border-radius-round: 9999px;",
+		"--border-size-1: 1px;",
+		"--border-size-3: 4px;",
+		"--anim-duration-base: 0.3s;",
+		"--anim-duration--1: 0.15s;",
+		"--anim-duration-2: 1.2s;",
+		"--anim-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);",
+	} {
+		if !strings.Contains(css, want) {
+			t.Errorf("generated CSS missing %q", want)
+		}
+	}
+	c := config.Default()
+	c.Sections.Radius, c.Sections.Border, c.Sections.Animation = false, false, false
+	less := Generate(c)
+	for _, gone := range []string{"--border-radius-", "--border-size-", "--anim-"} {
+		if strings.Contains(less, gone) {
+			t.Errorf("disabled section still emits %q tokens", gone)
+		}
+	}
+}
+
+// §6 gradients: var() references into the theme ramps, so gradients restyle
+// with the ramps; section toggle removes them.
+func TestGradients(t *testing.T) {
+	css := Generate(config.Default())
+	for _, want := range []string{
+		"--gradient-primary: linear-gradient(135deg in oklch, var(--primary-4), var(--primary-9));",
+		"--gradient-secondary: linear-gradient(135deg in oklch, var(--secondary-4), var(--secondary-9));",
+		"--gradient-neutral: linear-gradient(135deg in oklch, var(--neutral-4), var(--neutral-9));",
+		"--gradient-brand: linear-gradient(135deg in oklch, var(--primary-6), var(--secondary-6));",
+	} {
+		if !strings.Contains(css, want) {
+			t.Errorf("generated CSS missing %q", want)
+		}
+	}
+	c := config.Default()
+	c.Sections.Gradients = false
+	if strings.Contains(Generate(c), "--gradient-") {
+		t.Error("disabled gradients section still emits tokens")
+	}
+}
+
 // Flat-rem when min==max (font step 0 pinned to 1rem).
 func TestFontStepZeroFlat(t *testing.T) {
 	css := Generate(config.Default())

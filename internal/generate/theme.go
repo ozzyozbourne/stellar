@@ -67,7 +67,12 @@ func colorsThemePartial(c config.Config) Partial {
 	// invertLightDark (§5.3) swaps which palette drives light vs dark.
 	build := func(invert bool) []Var {
 		useInvert := invert != c.Colors.Schemes.InvertLightDark
-		var vars []Var
+		// UA form controls / scrollbars follow the active scheme.
+		scheme := "light"
+		if invert {
+			scheme = "dark"
+		}
+		vars := []Var{{"color-scheme", scheme}}
 		for _, role := range order {
 			vars = append(vars, roleVars(role, ramp(c.Colors.Roles[role], c.Colors, useInvert), fb)...)
 		}

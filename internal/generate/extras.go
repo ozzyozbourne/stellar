@@ -176,24 +176,31 @@ func namedPartial(c config.Config) Partial {
 	return mediaPartial("stellar:named.css", c, build)
 }
 
-// mediaPartial renders a light :root block plus a tone-inverted dark @media
-// block, using the supplied builder for each polarity (§5.3).
+// mediaPartial renders both color schemes three ways so the consuming-page
+// contract (§7: data-attr:data-theme="$theme") actually restyles:
+//   - light in `:root, [data-theme="light"]` (the attr selector lets a
+//     body-level data-theme win over the media-query dark on :root),
+//   - dark under `@media (prefers-color-scheme: dark)` gated with
+//     `:root:not([data-theme="light"])` so an explicit light opt-out sticks,
+//   - dark again under `[data-theme="dark"]` for the explicit toggle (§5.3).
 func mediaPartial(marker string, c config.Config, build func(invert bool) []Var) Partial {
 	mode := c.Output.Mode
 	light := build(false)
 	dark := build(true)
 	var b strings.Builder
-	b.WriteString(rootBlock(light, mode))
+	b.WriteString(selectorBlock(`:root, [data-theme="light"]`, light, mode))
 	if mode == "compact" {
 		b.WriteString("@media (prefers-color-scheme:dark){")
-		b.WriteString(rootBlock(dark, mode))
+		b.WriteString(selectorBlock(`:root:not([data-theme="light"])`, dark, mode))
 		b.WriteString("}")
+		b.WriteString(selectorBlock(`[data-theme="dark"]`, dark, mode))
 	} else {
 		b.WriteString("\n@media (prefers-color-scheme: dark) {\n")
-		for line := range strings.SplitSeq(rootBlock(dark, mode), "\n") {
+		for line := range strings.SplitSeq(selectorBlock(`:root:not([data-theme="light"])`, dark, mode), "\n") {
 			fmt.Fprintf(&b, "  %s\n", line)
 		}
-		b.WriteString("}")
+		b.WriteString("}\n")
+		b.WriteString(selectorBlock(`[data-theme="dark"]`, dark, mode))
 	}
 	return Partial{Marker: marker, Raw: b.String()}
 }

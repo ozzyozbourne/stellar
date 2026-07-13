@@ -1,5 +1,6 @@
-/* Hand-written, semantic, natively-nested CSS. References ONLY var(--token)
-   from the generated stellar.css — never a literal color/size (stellar.md §0,§13). */
+/* Hand-written, semantic, natively-nested CSS. The nesting tree mirrors the
+   HTML element tree 1:1 and references ONLY var(--token) from the generated
+   stellar.css — never a literal color/size (stellar.md §0, §13). */
 
 body {
   font-family: var(--font-humanist);
@@ -13,29 +14,81 @@ body {
   margin-inline: auto;
 }
 
-h1 {
-  font-size: var(--font-size-7);
-  line-height: var(--font-line-height--2);
-  color: var(--primary-9);
-  margin-block-end: var(--size-2);
+header {
+  & h1 {
+    font-size: var(--font-size-7);
+    line-height: var(--font-line-height--2);
+    margin-block-end: var(--size-2);
+    /* falls back to a flat primary "gradient" if the section is disabled,
+       so the clipped text never disappears */
+    background-image: var(--gradient-brand, linear-gradient(var(--primary-9), var(--primary-9)));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
 
-  & + p { color: var(--neutral-10); }
+  & .lede { color: var(--neutral-10); }
+
+  & button { margin-block-start: var(--size-2); }
 }
 
-h2 {
-  font-size: var(--font-size-4);
-  color: var(--secondary-9);
-  margin-block: var(--size-4) var(--size-1);
-}
+main {
+  & > section {
+    margin-block: var(--size-5);
 
-.card {
-  background: var(--neutral-2);
-  border: 1px solid var(--neutral-4);
-  border-radius: var(--size-1);
-  padding: var(--size-3);
-  margin-block: var(--size-3);
+    & h2 {
+      font-size: var(--font-size-4);
+      color: var(--secondary-9);
+      margin-block-end: var(--size-1);
+    }
 
-  & .label { font-size: var(--font-size--1); color: var(--neutral-9); }
+    /* the component card */
+    & article {
+      background: var(--neutral-2);
+      border: var(--border-size-1) solid var(--neutral-4);
+      border-radius: var(--border-radius-2);
+      padding: var(--size-3);
+
+      & h3 { font-size: var(--font-size--1); color: var(--neutral-9); }
+
+      & .actions {
+        display: flex;
+        gap: var(--size-1);
+        margin-block-start: var(--size-2);
+      }
+    }
+
+    /* the primary ramp */
+    & ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--size--2);
+
+      & li {
+        aspect-ratio: var(--aspect-ratio-square);
+        border-radius: var(--border-radius-1);
+        display: grid;
+        place-items: center;
+        font-size: var(--font-size--2);
+
+        &:nth-child(1)  { background: var(--primary-1);  color: var(--primary-1-on); }
+        &:nth-child(2)  { background: var(--primary-2);  color: var(--primary-2-on); }
+        &:nth-child(3)  { background: var(--primary-3);  color: var(--primary-3-on); }
+        &:nth-child(4)  { background: var(--primary-4);  color: var(--primary-4-on); }
+        &:nth-child(5)  { background: var(--primary-5);  color: var(--primary-5-on); }
+        &:nth-child(6)  { background: var(--primary-6);  color: var(--primary-6-on); }
+        &:nth-child(7)  { background: var(--primary-7);  color: var(--primary-7-on); }
+        &:nth-child(8)  { background: var(--primary-8);  color: var(--primary-8-on); }
+        &:nth-child(9)  { background: var(--primary-9);  color: var(--primary-9-on); }
+        &:nth-child(10) { background: var(--primary-10); color: var(--primary-10-on); }
+        &:nth-child(11) { background: var(--primary-11); color: var(--primary-11-on); }
+        &:nth-child(12) { background: var(--primary-12); color: var(--primary-12-on); }
+      }
+    }
+  }
 }
 
 button {
@@ -43,12 +96,20 @@ button {
   color: var(--primary-9-on);
   background: var(--primary-9);
   border: 0;
-  border-radius: var(--size--1);
+  border-radius: var(--border-radius-1);
   padding: var(--size-1) var(--size-3);
   cursor: pointer;
+  transition: background var(--anim-duration--1) var(--anim-ease-out);
 
   &:hover { background: var(--primary-10); }
-  &.ghost { background: transparent; color: var(--primary-9); border: 1px solid var(--primary-6); }
+
+  &.ghost {
+    background: transparent;
+    color: var(--primary-9);
+    border: var(--border-size-1) solid var(--primary-6);
+
+    &:hover { background: var(--primary-2); }
+  }
 }
 
 code {
@@ -56,19 +117,16 @@ code {
   background: var(--code-bg);
   color: var(--code-fg);
   padding: 0 var(--size--2);
-  border-radius: var(--size--2);
+  border-radius: var(--border-radius-1);
 }
 
-.swatches {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--size--2);
+footer {
+  margin-block-start: var(--size-6);
+  border-block-start: var(--border-size-1) solid var(--neutral-4);
+  padding-block-start: var(--size-3);
 
-  & > div {
-    aspect-ratio: var(--aspect-ratio-square);
-    border-radius: var(--size--2);
-    display: grid;
-    place-items: center;
-    font-size: var(--font-size--2);
+  & p {
+    font-size: var(--font-size--1);
+    color: var(--neutral-9);
   }
 }

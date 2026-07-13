@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PollyBot.ai - Smart Conversations, Seamless Automation</title>
+  <meta name="description" content="Create intelligent AI chatbots that understand, engage, and convert your website visitors 24/7. No coding required, deploy in minutes.">
+  <meta property="og:title" content="PollyBot.ai - Build AI Chatbots That Actually Convert">
+  <meta property="og:description" content="Create intelligent AI chatbots that understand, engage, and convert your website visitors 24/7. No coding required, deploy in minutes.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pollybot.ai">
+  <meta property="og:site_name" content="PollyBot.ai">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="props.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- ── Icon sprite (lucide) — referenced via <use>, not rendered itself ── -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+    <symbol id="i-puzzle" viewBox="0 0 24 24"><path d="M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"/></symbol>
+    <symbol id="i-trending" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol>
+  </svg>
+
+  <!-- ── Decorative floating orbs (purely presentational) ──────────────── -->
+  <span class="orb orb-1" aria-hidden="true"></span>
+  <span class="orb orb-2" aria-hidden="true"></span>
+  <span class="orb orb-3" aria-hidden="true"></span>
+
+  <!-- ── Header: brand + welcome ───────────────────────────────────────── -->
+  <header>
+    <svg class="logo" viewBox="0 0 320 80" role="img" aria-label="PollyBot.ai">
+      <defs>
+        <linearGradient id="birdGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FF6B8A"/>
+          <stop offset="35%" stop-color="#FF8A6B"/>
+          <stop offset="65%" stop-color="#C06BFF"/>
+          <stop offset="100%" stop-color="#6BB5FF"/>
+        </linearGradient>
+      </defs>
+      <text class="logo-ink" x="0" y="60" font-weight="900" font-size="52" letter-spacing="-2">POLLY</text>
+      <circle cx="160" cy="22" r="14" fill="url(#birdGrad)"/>
+      <ellipse cx="156" cy="19" rx="2" ry="2.5" fill="#1a1a2e"/>
+      <path d="M 148 30 Q 155 42 162 38 Q 168 34 165 28" fill="url(#birdGrad)" opacity="0.9"/>
+      <path d="M 162 38 Q 165 48 158 52" stroke="url(#birdGrad)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <text x="175" y="60" font-weight="900" font-size="52" fill="#5B21B6" letter-spacing="-2">BOT</text>
+      <text x="278" y="60" font-weight="700" font-size="32" fill="#7C3AED">.ai</text>
+    </svg>
+    <p class="welcome">Welcome to <b>PollyBot</b></p>
+  </header>
+
+  <main>
+    <!-- ── Hero ────────────────────────────────────────────────────────── -->
+    <section class="hero" aria-label="Introduction">
+      <h1>
+        <span class="rotator" aria-label="Harness the power of persuasion">
+          <span>Harness the power of persuasion,</span>
+          <span>Turn chats into sales,</span>
+          <span>Help customers faster than ever,</span>
+          <span>Guide users every step of the way,</span>
+          <span>Turn confusion into clarity,</span>
+          <span>Turn audiences into loyal communities,</span>
+        </span>
+        with AI, at your fingertips!
+      </h1>
+      <p class="lede">Create and customize your account in minutes. Create powerful AI chat agents or engaging chat rooms and engage your audience like never before. No coding required.</p>
+      <ul class="trust">
+        <li class="badge-amber"><svg class="icon" aria-hidden="true"><use href="#i-sparkles"/></svg>Setup in minutes, not months</li>
+        <li class="badge-emerald"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>Enterprise-grade security</li>
+        <li class="badge-blue"><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg>Your brand, your domain</li>
+      </ul>
+    </section>
+
+    <!-- ── Persistent CTA, pinned bottom-right ─────────────────────────── -->
+    <a class="floating-cta" href="/auth/signin">
+      <svg class="icon" aria-hidden="true"><use href="#i-sparkles"/></svg>
+      Get Started Free
+      <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg>
+    </a>
+
+    <!-- ── Action card ─────────────────────────────────────────────────── -->
+    <section class="actions" aria-labelledby="actions-title">
+      <h2 id="actions-title">What would you like to do?</h2>
+      <h3 class="gradient-text grad-getstarted">Get started in minutes!</h3>
+      <p class="muted">Create your account and start building AI chat agents</p>
+
+      <a class="cta-primary" href="/auth/signin">
+        Get Started Free
+        <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg>
+      </a>
+      <p class="fine">No credit card required. Setup in under 5 minutes.</p>
+      <a class="signin" href="/auth/signin">Already have an account? Sign in</a>
+
+      <ul class="action-cards">
+        <li class="card-blue">
+          <a href="/auth/signin">
+            <svg class="icon tile-icon" aria-hidden="true"><use href="#i-bot"/></svg>
+            <h4>Create AI Chat Agent</h4>
+            <p>Train an AI assistant on your documents</p>
+            <span class="more">Get Started <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></span>
+          </a>
+        </li>
+        <li class="card-emerald">
+          <a href="/auth/signin">
+            <svg class="icon tile-icon" aria-hidden="true"><use href="#i-message"/></svg>
+            <h4>Start a Chat Room</h4>
+            <p>Invite guests to secure conversations</p>
+            <span class="more">Explore Features <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ── Feature showcase ────────────────────────────────────────────── -->
+    <section class="features" aria-labelledby="features-title">
+      <h2 id="features-title">Everything you need to build <em class="gradient-text grad-amazing">amazing</em> chat experiences</h2>
+      <p class="section-lede">Powerful features designed to help you create, deploy, and scale your AI chat agents effortlessly.</p>
+
+      <ul class="bento">
+        <li class="feat-main">
+          <article>
+            <p class="feat-head">
+              <svg class="icon tile-icon accent-orange" aria-hidden="true"><use href="#i-bot"/></svg>
+              <span class="pill-solid">Most Popular</span>
+            </p>
+            <h3>AI Chat Agents</h3>
+            <p>Create intelligent agents trained on your documents, data, and <b class="accent-orange-text">custom personalities</b>.</p>
+            <p class="tags">
+              <span class="tag"><svg class="icon" aria-hidden="true"><use href="#i-sparkles"/></svg> Train on docs</span>
+              <span class="tag tag-orange"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg> Personalities</span>
+            </p>
+          </article>
+        </li>
+
+        <li class="feat-side">
+          <article class="deploy">
+            <h4>Deploy Anywhere</h4>
+            <p>One click to Web, Discord, or Private Rooms</p>
+            <p class="chips">
+              <span class="chip chip-indigo"><svg class="icon" aria-hidden="true"><use href="#i-message"/></svg></span>
+              <span class="chip chip-emerald"><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg></span>
+              <span class="chip chip-amber"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg></span>
+            </p>
+          </article>
+          <ul class="mini">
+            <li>
+              <article>
+                <p class="mini-head">
+                  <svg class="icon tile-icon accent-rose" aria-hidden="true"><use href="#i-video"/></svg>
+                  <span class="pill-soft pill-beta">BETA</span>
+                </p>
+                <h4>Live AI Avatars</h4>
+                <p>Animated video avatars that respond in real-time</p>
+              </article>
+            </li>
+            <li>
+              <article>
+                <p class="mini-head">
+                  <svg class="icon tile-icon accent-emerald" aria-hidden="true"><use href="#i-lock"/></svg>
+                  <span class="pill-solid pill-new">NEW</span>
+                </p>
+                <h4>Secure Chat Rooms</h4>
+                <p>Encrypted private conversations</p>
+              </article>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <ul class="feature-tiles">
+        <li><article><p class="tile-head"><svg class="icon accent-rose" aria-hidden="true"><use href="#i-palette"/></svg><b>Custom Branding</b></p><p>Your brand, email, domain</p></article></li>
+        <li><article><p class="tile-head"><svg class="icon accent-blue" aria-hidden="true"><use href="#i-users"/></svg><b>Workspaces</b></p><p>Collaborate with your team</p></article></li>
+        <li><article><p class="tile-head"><svg class="icon accent-violet" aria-hidden="true"><use href="#i-puzzle"/></svg><b>Integrations</b></p><p>Connect Apps, Webhooks</p></article></li>
+        <li><article><p class="tile-head"><svg class="icon accent-emerald" aria-hidden="true"><use href="#i-chart"/></svg><b>Analytics</b></p><p>Track engagement &amp; performance</p></article></li>
+      </ul>
+
+      <p class="whitelabel">
+        <svg class="icon accent-amber" aria-hidden="true"><use href="#i-sparkles"/></svg>
+        <b>Start Earning with your own White Label Reseller Account</b>
+        <span>— Launch your own branded AI chat platform today!</span>
+      </p>
+    </section>
+
+    <!-- ── Performance stats ───────────────────────────────────────────── -->
+    <section class="stats" aria-labelledby="stats-title">
+      <h2 id="stats-title">Built for performance, designed for <em class="gradient-text grad-simplicity">simplicity</em></h2>
+      <ul class="stat-cards">
+        <li class="accent-amber">
+          <article>
+            <p class="stat-head">
+              <svg class="icon tile-icon" aria-hidden="true"><use href="#i-zap"/></svg>
+              <strong>15 minutes</strong>
+              <small>avg. setup time</small>
+            </p>
+            <h3>Lightning Fast Setup</h3>
+            <p>Go from zero to a fully deployed AI chat agent in under 15 minutes. No technical expertise required.</p>
+          </article>
+        </li>
+        <li class="accent-emerald">
+          <article>
+            <p class="stat-head">
+              <svg class="icon tile-icon" aria-hidden="true"><use href="#i-shield"/></svg>
+              <strong>99.9%</strong>
+              <small>uptime SLA</small>
+            </p>
+            <h3>Enterprise-Grade Security</h3>
+            <p>End-to-end encryption, SOC 2 compliant, and GDPR ready. Your data stays protected at all times.</p>
+          </article>
+        </li>
+        <li class="accent-blue">
+          <article>
+            <p class="stat-head">
+              <svg class="icon tile-icon" aria-hidden="true"><use href="#i-clock"/></svg>
+              <strong>24/7</strong>
+              <small>always online</small>
+            </p>
+            <h3>24/7 Availability</h3>
+            <p>Your AI chat agent never sleeps. Provide instant responses to your customers around the clock.</p>
+          </article>
+        </li>
+        <li class="accent-violet">
+          <article>
+            <p class="stat-head">
+              <svg class="icon tile-icon" aria-hidden="true"><use href="#i-trending"/></svg>
+              <strong>10M+</strong>
+              <small>messages handled</small>
+            </p>
+            <h3>Scales With You</h3>
+            <p>Handle thousands of simultaneous conversations without breaking a sweat. Built for growth.</p>
+          </article>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────── -->
+  <footer>
+    <svg class="logo" viewBox="0 0 320 80" role="img" aria-label="PollyBot.ai">
+      <text class="logo-ink" x="0" y="60" font-weight="900" font-size="52" letter-spacing="-2">POLLY</text>
+      <circle cx="160" cy="22" r="14" fill="#C06BFF"/>
+      <ellipse cx="156" cy="19" rx="2" ry="2.5" fill="#1a1a2e"/>
+      <text x="175" y="60" font-weight="900" font-size="52" fill="#5B21B6" letter-spacing="-2">BOT</text>
+      <text x="278" y="60" font-weight="700" font-size="32" fill="#7C3AED">.ai</text>
+    </svg>
+    <p>The power of persuasion, using AI. Built with performance, designed for simplicity.</p>
+  </footer>
+</body>
+</html>

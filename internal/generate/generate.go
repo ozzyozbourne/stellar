@@ -44,16 +44,21 @@ func (p Partial) CSS(mode string) string {
 
 // rootBlock wraps vars in a :root{} rule.
 func rootBlock(vars []Var, mode string) string {
+	return selectorBlock(":root", vars, mode)
+}
+
+// selectorBlock wraps vars in a rule with an arbitrary selector.
+func selectorBlock(sel string, vars []Var, mode string) string {
 	var b strings.Builder
 	if mode == "compact" {
-		b.WriteString(":root{")
+		b.WriteString(sel + "{")
 		for _, v := range vars {
 			fmt.Fprintf(&b, "%s:%s;", v.Name, v.Value)
 		}
 		b.WriteString("}")
 		return b.String()
 	}
-	b.WriteString(":root {\n")
+	b.WriteString(sel + " {\n")
 	for _, v := range vars {
 		fmt.Fprintf(&b, "  %s: %s;\n", v.Name, v.Value)
 	}
@@ -85,9 +90,13 @@ func Generate(c config.Config) string {
 		{c.Sections.Size, sizePartial(c)},
 		{c.Sections.AspectRatio, aspectRatioPartial(c)},
 		{c.Sections.ZIndex, zIndexPartial(c)},
+		{c.Sections.Radius, radiusPartial(c)},
+		{c.Sections.Border, borderPartial(c)},
+		{c.Sections.Animation, animationPartial(c)},
 		{c.Sections.Charts, chartsPartial(c)},
 		{c.Sections.Code, codePartial(c)},
 		{c.Sections.Named, namedPartial(c)},
+		{c.Sections.Gradients, gradientsPartial(c)},
 		{c.Sections.FontsFamilies, fontsFamiliesPartial(c)},
 	}
 	for _, s := range sects {

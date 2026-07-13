@@ -28,9 +28,13 @@ type Sections struct {
 	Size             bool `json:"size"`
 	AspectRatio      bool `json:"aspectRatio"`
 	ZIndex           bool `json:"zIndex"`
+	Radius           bool `json:"radius"`
+	Border           bool `json:"border"`
+	Animation        bool `json:"animation"`
 	Charts           bool `json:"charts"`
 	Code             bool `json:"code"`
 	Named            bool `json:"named"`
+	Gradients        bool `json:"gradients"`
 }
 
 type Pair struct {
@@ -139,6 +143,45 @@ type ZItem struct {
 	Desc  string `json:"desc,omitempty"`
 }
 
+// Radius is a flat modular scale for border radii (§6 "radius").
+type Radius struct {
+	Base  float64 `json:"base"`  // rem at step 1
+	Ratio float64 `json:"ratio"`
+	Steps int     `json:"steps"`
+}
+
+// Borders lists border widths in px (§6 "border").
+type Borders struct {
+	Sizes []float64 `json:"sizes"`
+}
+
+// Animation is a duration scale plus named easings (§6 "animation").
+type Animation struct {
+	DurationBase  float64           `json:"durationBase"` // seconds at step 0
+	DurationRatio float64           `json:"durationRatio"`
+	NegativeSteps int               `json:"negativeSteps"`
+	PositiveSteps int               `json:"positiveSteps"`
+	Easings       map[string]string `json:"easings"`
+}
+
+// GradientPair is a custom gradient between two theme tokens; From/To are
+// token suffixes like "primary-6".
+type GradientPair struct {
+	Name string `json:"name"`
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
+// Gradients derives per-role and custom gradients from the theme ramps. The
+// emitted values are var() references, so gradients restyle with the ramps.
+type Gradients struct {
+	Angle float64        `json:"angle"` // degrees, linear gradients
+	Space string         `json:"space"` // interpolation color space
+	From  int            `json:"from"`  // ramp step of the start stop
+	To    int            `json:"to"`    // ramp step of the end stop
+	Pairs []GradientPair `json:"pairs,omitempty"`
+}
+
 type Output struct {
 	Mode           string `json:"mode"` // readable | compact
 	ColorFallbacks bool   `json:"colorFallbacks"`
@@ -159,6 +202,10 @@ type Config struct {
 	Named            Named               `json:"named"`
 	AspectRatio      map[string]float64  `json:"aspectRatio"`
 	ZIndex           []ZItem             `json:"zIndex"`
+	Radius           Radius              `json:"radius"`
+	Border           Borders             `json:"border"`
+	Animation        Animation           `json:"animation"`
+	Gradients        Gradients           `json:"gradients"`
 	Output           Output              `json:"output"`
 }
 
@@ -170,7 +217,8 @@ func Default() Config {
 			Normalize: true, ColorsTheme: true, FontsSizes: true,
 			FontsLineHeights: true, FontsSpacing: true, FontsFamilies: true,
 			Size: true, AspectRatio: true, ZIndex: true,
-			Charts: true, Code: true, Named: true,
+			Radius: true, Border: true, Animation: true,
+			Charts: true, Code: true, Named: true, Gradients: true,
 		},
 		Size: SizeScale{BaseMin: 0.5, BaseMax: 1.1, MinRatio: 1.067, MaxRatio: 1.5,
 			NegativeSteps: 2, PositiveSteps: 12},
@@ -201,6 +249,20 @@ func Default() Config {
 		Named: Named{NegativeSteps: 2, PositiveSteps: 2, HuePerStep: 6, ChromaPerStep: 1.5,
 			TonePerStep: 4, Tokens: []NamedToken{{Name: "adobe", Color: "#ff0000"}}},
 		AspectRatio: map[string]float64{"portrait": 0.75, "widescreen": 1.7778, "square": 1},
+		Radius:      Radius{Base: 0.25, Ratio: 1.5, Steps: 5},
+		Border:      Borders{Sizes: []float64{1, 2, 4}},
+		Animation: Animation{
+			DurationBase: 0.3, DurationRatio: 2, NegativeSteps: 1, PositiveSteps: 2,
+			Easings: map[string]string{
+				"in":     "cubic-bezier(0.4, 0, 1, 1)",
+				"out":    "cubic-bezier(0, 0, 0.2, 1)",
+				"in-out": "cubic-bezier(0.4, 0, 0.2, 1)",
+			},
+		},
+		Gradients: Gradients{
+			Angle: 135, Space: "oklch", From: 4, To: 9,
+			Pairs: []GradientPair{{Name: "brand", From: "primary-6", To: "secondary-6"}},
+		},
 		ZIndex: []ZItem{
 			{Name: "drawer", Value: 700, Desc: "Navigation drawers and shell surfaces."},
 			{Name: "dialog", Value: 800}, {Name: "dropdown", Value: 900},

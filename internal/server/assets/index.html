@@ -8,218 +8,366 @@
   <link id="stellar-css" rel="stylesheet">
   <script src="/static/datastar.js" type="module"></script>
   <style>
-    :root { color-scheme: light dark; }
-    body { font-family: var(--font-humanist, system-ui, sans-serif); margin: 0;
-           display: grid; grid-template-columns: 340px 1fr; min-height: 100vh; }
-    aside { padding: 1rem; border-right: 1px solid #8884; overflow-y: auto; max-height: 100vh; }
-    main { padding: 1rem 1.5rem; overflow-y: auto; max-height: 100vh; }
-    h1 { font-size: 1.1rem; margin: 0 0 .25rem; }
-    h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em;
-         opacity: .7; margin: 1.25rem 0 .5rem; }
-    label { display: grid; grid-template-columns: 1fr auto; gap: .5rem;
-            align-items: center; font-size: .8rem; margin: .35rem 0; }
+    /* Editor chrome. Dogfoods generated tokens (with fallbacks so the page
+       stands up even before the first stylesheet patch lands). */
+    * { box-sizing: border-box; }
+    body {
+      font-family: var(--font-humanist, system-ui, sans-serif);
+      margin: 0;
+      display: grid; grid-template-columns: 22rem 1fr; min-height: 100vh;
+      background: var(--neutral-1, canvas); color: var(--neutral-12, canvastext);
+    }
+    aside {
+      padding: var(--size-3, 1rem);
+      border-right: var(--border-size-1, 1px) solid var(--neutral-4, #8884);
+      overflow-y: auto; max-height: 100vh;
+    }
+    main { padding: var(--size-3, 1rem) var(--size-4, 1.5rem); overflow-y: auto; max-height: 100vh; }
+    h1 { font-size: var(--font-size-2, 1.1rem); margin: 0 0 .25rem; }
+    h2 {
+      font-size: var(--font-size--1, .85rem); text-transform: uppercase;
+      letter-spacing: .06em; opacity: .7; margin: 1.25rem 0 .5rem;
+    }
+    label {
+      display: grid; grid-template-columns: 1fr auto; gap: .5rem;
+      align-items: center; font-size: var(--font-size--2, .8rem); margin: .35rem 0;
+    }
     input[type=number] { width: 6rem; }
-    .swatches { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin: .25rem 0 1rem; }
-    .swatch { aspect-ratio: 1; border-radius: 3px; display: grid; place-items: center; font-size: .6rem; }
-    .bars { display: grid; gap: 4px; }
-    .bar { height: 1.4rem; background: #6699ff; border-radius: 3px; }
-    .meter { font-variant-numeric: tabular-nums; font-size: .8rem; opacity: .8; }
-    iframe { width: 100%; height: 320px; border: 1px solid #8884; border-radius: 6px; }
-    .row { display: flex; gap: .5rem; flex-wrap: wrap; }
-    button { font: inherit; padding: .3rem .6rem; border-radius: 5px; border: 1px solid #8886;
-             background: #8881; cursor: pointer; }
+    input[type=text] { width: 11rem; }
+    select { justify-self: end; }
+    /* musical-ratio preset + free number, dual-bound to the same signal */
+    .ratio { display: flex; gap: .25rem; justify-self: end; }
+    .ratio input[type=number] { width: 4.5rem; }
+    .preview-width { display: flex; align-items: center; gap: .5rem; font-size: var(--font-size--2, .8rem); }
+    .preview-width input[type=range] { flex: 1; max-width: 20rem; }
+    .meter { font-variant-numeric: tabular-nums; font-size: var(--font-size--2, .8rem); opacity: .8; margin: 0 0 .5rem; }
+    .swatches { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin: .25rem 0 1rem; padding: 0; list-style: none; }
+    .swatches li { display: contents; }
+    .swatch {
+      aspect-ratio: var(--aspect-ratio-square, 1); border: 0; width: 100%;
+      border-radius: var(--border-radius-1, 3px);
+      display: grid; place-items: center; font-size: .6rem;
+    }
+    button.swatch { cursor: pointer; }
+    .specimens { list-style: none; margin: 0 0 1rem; padding: 0; }
+    .specimens li { line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gradients { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+    .gradients li {
+      height: 3.5rem; border-radius: var(--border-radius-2, 6px);
+      display: grid; place-items: end start; padding: .3rem .5rem;
+      font-size: .7rem; color: var(--neutral-1, white);
+    }
+    .radii { display: flex; gap: .5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+    .radii li {
+      width: 3.5rem; height: 3.5rem; background: var(--primary-4, #6699ff);
+      transition: border-radius var(--anim-duration-base, .3s) var(--anim-ease-in-out, ease);
+      display: grid; place-items: center; font-size: .7rem; color: var(--primary-4-on, black);
+    }
+    iframe { width: 100%; max-width: 100%; height: 24rem; border: var(--border-size-1, 1px) solid var(--neutral-4, #8884); border-radius: var(--border-radius-2, 6px); }
+    .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+    button, .button {
+      font: inherit; padding: .3rem .6rem; cursor: pointer; text-decoration: none;
+      border-radius: var(--border-radius-1, 5px);
+      border: var(--border-size-1, 1px) solid var(--neutral-6, #8886);
+      background: var(--neutral-3, #8881); color: inherit;
+    }
     code { font-family: var(--font-mono, ui-monospace, monospace); }
   </style>
 </head>
-<body data-init="@get('/live-refresh')"
-      data-signals:theme="'light'"
-      data-attr:data-theme="$theme">
 
-  <aside>
+<!-- The whole editor is declarative Datastar: the config lives in signals
+     (seeded server-side), every input is data-bind'ed, and one debounced
+     @post('/config') on the form column is the only write. All reads come
+     back over the /live-refresh SSE stream as element patches (CQRS). -->
+<body data-signals="__STELLAR_SIGNALS__"
+      data-signals:theme="'auto'"
+      data-signals:_preview="1440"
+      data-attr:data-theme="$theme === 'auto' ? false : $theme"
+      data-init="@get('/live-refresh?meter=1')">
+
+  <aside data-on:input__debounce.300ms="@post('/config')">
     <h1>Stellar</h1>
-    <div class="meter" id="meter">— tokens, — bytes</div>
+    <p class="meter" id="meter"></p>
 
-    <h2>Viewport</h2>
-    <label>min (px) <input type="number" data-cfg="viewport.min" step="1"></label>
-    <label>max (px) <input type="number" data-cfg="viewport.max" step="1"></label>
-    <label>base font (px) <input type="number" data-cfg="viewport.baseFont" step="1"></label>
-
-    <h2>Size scale</h2>
-    <label>base min (rem) <input type="number" data-cfg="size.baseMin" step="0.01"></label>
-    <label>base max (rem) <input type="number" data-cfg="size.baseMax" step="0.01"></label>
-    <label>min ratio <input type="number" data-cfg="size.minRatio" step="0.001"></label>
-    <label>max ratio <input type="number" data-cfg="size.maxRatio" step="0.001"></label>
-    <label>+ steps <input type="number" data-cfg="size.positiveSteps" step="1"></label>
-    <label>− steps <input type="number" data-cfg="size.negativeSteps" step="1"></label>
-
-    <h2>Font sizes</h2>
-    <label>min ratio <input type="number" data-cfg="fontsSizes.minRatio" step="0.001"></label>
-    <label>max ratio <input type="number" data-cfg="fontsSizes.maxRatio" step="0.001"></label>
-
-    <h2>Colors (seeds)</h2>
-    <label>primary <input type="text" data-cfg="colors.roles.primary.seed"></label>
-    <label>secondary <input type="text" data-cfg="colors.roles.secondary.seed"></label>
-    <label>neutral <input type="text" data-cfg="colors.roles.neutral.seed"></label>
-    <label>on Lc <input type="number" data-cfg="colors.apca.onLc" step="1"></label>
-    <label>dim Lc <input type="number" data-cfg="colors.apca.dimLc" step="1"></label>
-
-    <h2>Extract from image</h2>
-    <label>harmony
-      <select id="harmony">
-        <option>complement</option><option>triad</option>
-        <option>tetrad</option><option>analogous</option>
+    <label>theme
+      <select data-bind:theme>
+        <option value="auto">auto</option>
+        <option value="light">light</option>
+        <option value="dark">dark</option>
       </select>
     </label>
-    <input type="file" id="imgfile" accept="image/*">
-    <div class="swatches" id="candidates" style="grid-template-columns:repeat(4,1fr)"></div>
+
+    <h2>Viewport</h2>
+    <label>min (px) <input type="number" step="1" data-bind:viewport.min></label>
+    <label>max (px) <input type="number" step="1" data-bind:viewport.max></label>
+    <label>base font (px) <input type="number" step="1" data-bind:viewport.base-font></label>
+
+    <h2>Size scale</h2>
+    <label>base min (rem) <input type="number" step="0.01" data-bind:size.base-min></label>
+    <label>base max (rem) <input type="number" step="0.01" data-bind:size.base-max></label>
+    <label>min ratio
+      <span class="ratio">
+        <select data-bind:size.min-ratio>
+          <option value="1.067">minor 2nd</option><option value="1.125">major 2nd</option>
+          <option value="1.2">minor 3rd</option><option value="1.25">major 3rd</option>
+          <option value="1.333">perfect 4th</option><option value="1.414">aug. 4th</option>
+          <option value="1.5">perfect 5th</option><option value="1.618">golden</option>
+          <option value="1.667">major 6th</option><option value="1.778">minor 7th</option>
+          <option value="1.875">major 7th</option><option value="2">octave</option>
+        </select>
+        <input type="number" step="0.001" data-bind:size.min-ratio>
+      </span>
+    </label>
+    <label>max ratio
+      <span class="ratio">
+        <select data-bind:size.max-ratio>
+          <option value="1.067">minor 2nd</option><option value="1.125">major 2nd</option>
+          <option value="1.2">minor 3rd</option><option value="1.25">major 3rd</option>
+          <option value="1.333">perfect 4th</option><option value="1.414">aug. 4th</option>
+          <option value="1.5">perfect 5th</option><option value="1.618">golden</option>
+          <option value="1.667">major 6th</option><option value="1.778">minor 7th</option>
+          <option value="1.875">major 7th</option><option value="2">octave</option>
+        </select>
+        <input type="number" step="0.001" data-bind:size.max-ratio>
+      </span>
+    </label>
+    <label>+ steps <input type="number" step="1" data-bind:size.positive-steps></label>
+    <label>− steps <input type="number" step="1" data-bind:size.negative-steps></label>
+
+    <h2>Font sizes</h2>
+    <label>min ratio
+      <span class="ratio">
+        <select data-bind:fonts-sizes.min-ratio>
+          <option value="1.067">minor 2nd</option><option value="1.125">major 2nd</option>
+          <option value="1.2">minor 3rd</option><option value="1.25">major 3rd</option>
+          <option value="1.333">perfect 4th</option><option value="1.414">aug. 4th</option>
+          <option value="1.5">perfect 5th</option><option value="1.618">golden</option>
+          <option value="1.667">major 6th</option><option value="1.778">minor 7th</option>
+          <option value="1.875">major 7th</option><option value="2">octave</option>
+        </select>
+        <input type="number" step="0.001" data-bind:fonts-sizes.min-ratio>
+      </span>
+    </label>
+    <label>max ratio
+      <span class="ratio">
+        <select data-bind:fonts-sizes.max-ratio>
+          <option value="1.067">minor 2nd</option><option value="1.125">major 2nd</option>
+          <option value="1.2">minor 3rd</option><option value="1.25">major 3rd</option>
+          <option value="1.333">perfect 4th</option><option value="1.414">aug. 4th</option>
+          <option value="1.5">perfect 5th</option><option value="1.618">golden</option>
+          <option value="1.667">major 6th</option><option value="1.778">minor 7th</option>
+          <option value="1.875">major 7th</option><option value="2">octave</option>
+        </select>
+        <input type="number" step="0.001" data-bind:fonts-sizes.max-ratio>
+      </span>
+    </label>
+    <label>+ steps <input type="number" step="1" data-bind:fonts-sizes.positive-steps></label>
+
+    <h2>Line heights</h2>
+    <label>base <input type="number" step="0.01" data-bind:fonts-line-heights.base></label>
+    <label>ratio
+      <span class="ratio">
+        <select data-bind:fonts-line-heights.ratio>
+          <option value="1.067">minor 2nd</option><option value="1.125">major 2nd</option>
+          <option value="1.2">minor 3rd</option><option value="1.25">major 3rd</option>
+          <option value="1.333">perfect 4th</option><option value="1.414">aug. 4th</option>
+          <option value="1.5">perfect 5th</option><option value="1.618">golden</option>
+          <option value="1.667">major 6th</option><option value="1.778">minor 7th</option>
+          <option value="1.875">major 7th</option><option value="2">octave</option>
+        </select>
+        <input type="number" step="0.001" data-bind:fonts-line-heights.ratio>
+      </span>
+    </label>
+
+    <h2>Letter spacing</h2>
+    <label>base <input type="number" step="0.005" data-bind:fonts-spacing.base></label>
+    <label>min factor <input type="number" step="0.001" data-bind:fonts-spacing.min-factor></label>
+    <label>max factor <input type="number" step="0.001" data-bind:fonts-spacing.max-factor></label>
+
+    <h2>Colors</h2>
+    <label>primary <input type="text" data-bind:colors.roles.primary.seed></label>
+    <label>secondary <input type="text" data-bind:colors.roles.secondary.seed></label>
+    <label>neutral <input type="text" data-bind:colors.roles.neutral.seed></label>
+    <label>steps <input type="number" step="1" data-bind:colors.steps></label>
+    <label>on Lc <input type="number" step="1" data-bind:colors.apca.on-lc></label>
+    <label>dim Lc <input type="number" step="1" data-bind:colors.apca.dim-lc></label>
+    <label>invert light/dark <input type="checkbox" data-bind:colors.schemes.invert-light-dark></label>
+
+    <h2>Radius / animation</h2>
+    <label>radius base (rem) <input type="number" step="0.05" data-bind:radius.base></label>
+    <label>radius ratio <input type="number" step="0.05" data-bind:radius.ratio></label>
+    <label>radius steps <input type="number" step="1" data-bind:radius.steps></label>
+    <label>duration base (s) <input type="number" step="0.05" data-bind:animation.duration-base></label>
+    <label>duration ratio <input type="number" step="0.1" data-bind:animation.duration-ratio></label>
+
+    <h2>Gradients</h2>
+    <label>angle (deg) <input type="number" step="1" data-bind:gradients.angle></label>
+    <label>from step <input type="number" step="1" data-bind:gradients.from></label>
+    <label>to step <input type="number" step="1" data-bind:gradients.to></label>
+
+    <h2>Charts</h2>
+    <label>qualitative <input type="number" step="1" data-bind:charts.qualitative-count></label>
+    <label>diverging <input type="number" step="1" data-bind:charts.diverging-count></label>
+    <label>tone steps <input type="number" step="1" data-bind:charts.tone-steps></label>
+
+    <h2>Extract from image</h2>
+    <!-- contentType 'form' posts this form as multipart; the response is an
+         SSE patch that renders #candidates below (§5.4). No submit button, so
+         the form never navigates. -->
+    <form enctype="multipart/form-data">
+      <label>harmony
+        <select name="harmony">
+          <option>complement</option><option>triad</option>
+          <option>tetrad</option><option>analogous</option>
+        </select>
+      </label>
+      <input type="file" name="image" accept="image/*"
+             data-on:change="@post('/extract', {contentType: 'form'})">
+    </form>
+    <ul class="swatches" id="candidates" style="grid-template-columns:repeat(8,1fr)"></ul>
 
     <h2>Sections</h2>
-    <div id="sections"></div>
+    <label>normalize <input type="checkbox" data-bind:sections.normalize></label>
+    <label>colors theme <input type="checkbox" data-bind:sections.colors-theme></label>
+    <label>font sizes <input type="checkbox" data-bind:sections.fonts-sizes></label>
+    <label>line heights <input type="checkbox" data-bind:sections.fonts-line-heights></label>
+    <label>letter spacing <input type="checkbox" data-bind:sections.fonts-spacing></label>
+    <label>font families <input type="checkbox" data-bind:sections.fonts-families></label>
+    <label>size <input type="checkbox" data-bind:sections.size></label>
+    <label>aspect ratio <input type="checkbox" data-bind:sections.aspect-ratio></label>
+    <label>z-index <input type="checkbox" data-bind:sections.z-index></label>
+    <label>radius <input type="checkbox" data-bind:sections.radius></label>
+    <label>border <input type="checkbox" data-bind:sections.border></label>
+    <label>animation <input type="checkbox" data-bind:sections.animation></label>
+    <label>charts <input type="checkbox" data-bind:sections.charts></label>
+    <label>code <input type="checkbox" data-bind:sections.code></label>
+    <label>named <input type="checkbox" data-bind:sections.named></label>
+    <label>gradients <input type="checkbox" data-bind:sections.gradients></label>
 
     <h2>Output</h2>
-    <div class="row">
-      <button data-on:click="$theme = $theme === 'light' ? 'dark' : 'light'">Toggle dark</button>
-      <a href="/assets/css/stellar/current" download="stellar.css"><button type="button">Export</button></a>
-    </div>
+    <label>mode
+      <select data-bind:output.mode>
+        <option value="readable">readable</option>
+        <option value="compact">compact</option>
+      </select>
+    </label>
+    <label>hex fallbacks <input type="checkbox" data-bind:output.color-fallbacks></label>
+    <p class="row">
+      <a class="button" href="/assets/css/stellar/current" download="stellar.css">Export stellar.css</a>
+      <button type="button" data-on:click="@post('/reset')">Reset defaults</button>
+    </p>
   </aside>
 
+  <!-- Previews are plain token consumers: when the SSE patch swaps the
+       stylesheet link, everything below restyles by itself. No scripting. -->
   <main>
-    <h2>Color ramp — primary</h2>
-    <div class="swatches" id="ramp"></div>
+    <h2>Primary ramp</h2>
+    <ul class="swatches">
+      <li><span class="swatch" style="background:var(--primary-1);color:var(--primary-1-on)">1</span></li>
+      <li><span class="swatch" style="background:var(--primary-2);color:var(--primary-2-on)">2</span></li>
+      <li><span class="swatch" style="background:var(--primary-3);color:var(--primary-3-on)">3</span></li>
+      <li><span class="swatch" style="background:var(--primary-4);color:var(--primary-4-on)">4</span></li>
+      <li><span class="swatch" style="background:var(--primary-5);color:var(--primary-5-on)">5</span></li>
+      <li><span class="swatch" style="background:var(--primary-6);color:var(--primary-6-on)">6</span></li>
+      <li><span class="swatch" style="background:var(--primary-7);color:var(--primary-7-on)">7</span></li>
+      <li><span class="swatch" style="background:var(--primary-8);color:var(--primary-8-on)">8</span></li>
+      <li><span class="swatch" style="background:var(--primary-9);color:var(--primary-9-on)">9</span></li>
+      <li><span class="swatch" style="background:var(--primary-10);color:var(--primary-10-on)">10</span></li>
+      <li><span class="swatch" style="background:var(--primary-11);color:var(--primary-11-on)">11</span></li>
+      <li><span class="swatch" style="background:var(--primary-12);color:var(--primary-12-on)">12</span></li>
+    </ul>
+
+    <h2>Secondary ramp</h2>
+    <ul class="swatches">
+      <li><span class="swatch" style="background:var(--secondary-1);color:var(--secondary-1-on)">1</span></li>
+      <li><span class="swatch" style="background:var(--secondary-2);color:var(--secondary-2-on)">2</span></li>
+      <li><span class="swatch" style="background:var(--secondary-3);color:var(--secondary-3-on)">3</span></li>
+      <li><span class="swatch" style="background:var(--secondary-4);color:var(--secondary-4-on)">4</span></li>
+      <li><span class="swatch" style="background:var(--secondary-5);color:var(--secondary-5-on)">5</span></li>
+      <li><span class="swatch" style="background:var(--secondary-6);color:var(--secondary-6-on)">6</span></li>
+      <li><span class="swatch" style="background:var(--secondary-7);color:var(--secondary-7-on)">7</span></li>
+      <li><span class="swatch" style="background:var(--secondary-8);color:var(--secondary-8-on)">8</span></li>
+      <li><span class="swatch" style="background:var(--secondary-9);color:var(--secondary-9-on)">9</span></li>
+      <li><span class="swatch" style="background:var(--secondary-10);color:var(--secondary-10-on)">10</span></li>
+      <li><span class="swatch" style="background:var(--secondary-11);color:var(--secondary-11-on)">11</span></li>
+      <li><span class="swatch" style="background:var(--secondary-12);color:var(--secondary-12-on)">12</span></li>
+    </ul>
+
+    <h2>Neutral ramp</h2>
+    <ul class="swatches">
+      <li><span class="swatch" style="background:var(--neutral-1);color:var(--neutral-1-on)">1</span></li>
+      <li><span class="swatch" style="background:var(--neutral-2);color:var(--neutral-2-on)">2</span></li>
+      <li><span class="swatch" style="background:var(--neutral-3);color:var(--neutral-3-on)">3</span></li>
+      <li><span class="swatch" style="background:var(--neutral-4);color:var(--neutral-4-on)">4</span></li>
+      <li><span class="swatch" style="background:var(--neutral-5);color:var(--neutral-5-on)">5</span></li>
+      <li><span class="swatch" style="background:var(--neutral-6);color:var(--neutral-6-on)">6</span></li>
+      <li><span class="swatch" style="background:var(--neutral-7);color:var(--neutral-7-on)">7</span></li>
+      <li><span class="swatch" style="background:var(--neutral-8);color:var(--neutral-8-on)">8</span></li>
+      <li><span class="swatch" style="background:var(--neutral-9);color:var(--neutral-9-on)">9</span></li>
+      <li><span class="swatch" style="background:var(--neutral-10);color:var(--neutral-10-on)">10</span></li>
+      <li><span class="swatch" style="background:var(--neutral-11);color:var(--neutral-11-on)">11</span></li>
+      <li><span class="swatch" style="background:var(--neutral-12);color:var(--neutral-12-on)">12</span></li>
+    </ul>
+
+    <h2>Chart qualitative</h2>
+    <ul class="swatches">
+      <li><span class="swatch" style="background:var(--chart-qualitative-1);color:var(--chart-qualitative-1-on)">1</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-2);color:var(--chart-qualitative-2-on)">2</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-3);color:var(--chart-qualitative-3-on)">3</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-4);color:var(--chart-qualitative-4-on)">4</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-5);color:var(--chart-qualitative-5-on)">5</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-6);color:var(--chart-qualitative-6-on)">6</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-7);color:var(--chart-qualitative-7-on)">7</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-8);color:var(--chart-qualitative-8-on)">8</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-9);color:var(--chart-qualitative-9-on)">9</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-10);color:var(--chart-qualitative-10-on)">10</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-11);color:var(--chart-qualitative-11-on)">11</span></li>
+      <li><span class="swatch" style="background:var(--chart-qualitative-12);color:var(--chart-qualitative-12-on)">12</span></li>
+    </ul>
+
     <h2>Type scale</h2>
-    <div class="bars" id="bars"></div>
+    <ul class="specimens">
+      <li style="font-size:var(--font-size--2)">font-size--2 · The quick brown fox</li>
+      <li style="font-size:var(--font-size--1)">font-size--1 · The quick brown fox</li>
+      <li style="font-size:var(--font-size-0)">font-size-0 · The quick brown fox</li>
+      <li style="font-size:var(--font-size-1)">font-size-1 · The quick brown fox</li>
+      <li style="font-size:var(--font-size-2)">font-size-2 · The quick brown fox</li>
+      <li style="font-size:var(--font-size-3)">font-size-3 · The quick brown fox</li>
+      <li style="font-size:var(--font-size-4)">font-size-4 · The quick brown fox</li>
+      <li style="font-size:var(--font-size-5)">font-size-5 · The quick brown fox</li>
+      <li style="font-size:var(--font-size-6)">font-size-6 · The quick brown fox</li>
+    </ul>
+
+    <h2>Gradients</h2>
+    <ul class="gradients">
+      <li style="background:var(--gradient-primary)">primary</li>
+      <li style="background:var(--gradient-secondary)">secondary</li>
+      <li style="background:var(--gradient-neutral)">neutral</li>
+      <li style="background:var(--gradient-brand)">brand</li>
+    </ul>
+
+    <h2>Radii</h2>
+    <ul class="radii">
+      <li style="border-radius:var(--border-radius-1)">1</li>
+      <li style="border-radius:var(--border-radius-2)">2</li>
+      <li style="border-radius:var(--border-radius-3)">3</li>
+      <li style="border-radius:var(--border-radius-4)">4</li>
+      <li style="border-radius:var(--border-radius-5)">5</li>
+      <li style="border-radius:var(--border-radius-round)">∞</li>
+    </ul>
+
     <h2>Demo (live stylesheet)</h2>
-    <iframe id="demo" src="about:blank"></iframe>
+    <!-- $_preview is local view state (underscore signals are never sent to
+         the backend): dragging it shows the fluid clamp() locks kicking in
+         between viewport.min and viewport.max. -->
+    <p class="preview-width">
+      preview width
+      <input type="range" step="10" data-bind:_preview
+             data-attr:min="$viewport.min" data-attr:max="$viewport.max">
+      <span data-text="$_preview + 'px'">1440px</span>
+    </p>
+    <iframe id="demo" src="/demo/" title="Consumer demo"
+            data-attr:style="'width: ' + $_preview + 'px'"></iframe>
   </main>
-
-  <script type="module">
-    // --- config form <-> server ----------------------------------------
-    const get = (obj, path) => path.split('.').reduce((o,k)=>o?.[k], obj);
-    const set = (obj, path, val) => {
-      const ks = path.split('.'); const last = ks.pop();
-      let o = obj; for (const k of ks) o = o[k] ??= {};
-      o[last] = val;
-    };
-    let cfg = {};
-    const inputs = [...document.querySelectorAll('[data-cfg]')];
-
-    function coerce(el, raw) {
-      if (el.type === 'number') return raw === '' ? 0 : Number(raw);
-      if (el.type === 'checkbox') return el.checked;
-      return raw;
-    }
-    function fill() {
-      for (const el of inputs) {
-        const v = get(cfg, el.dataset.cfg);
-        if (v !== undefined) el.value = v;
-      }
-      // section toggles
-      const sx = document.getElementById('sections');
-      sx.innerHTML = '';
-      for (const [k, v] of Object.entries(cfg.sections ?? {})) {
-        const id = 'sec-' + k;
-        const l = document.createElement('label');
-        l.innerHTML = `${k}<input type="checkbox" id="${id}" ${v ? 'checked' : ''}>`;
-        l.querySelector('input').addEventListener('change', e => {
-          cfg.sections[k] = e.target.checked; push();
-        });
-        sx.appendChild(l);
-      }
-    }
-    let t;
-    function push() {
-      clearTimeout(t);
-      t = setTimeout(async () => {
-        const res = await fetch('/config', {
-          method: 'POST', headers: {'content-type':'application/json'},
-          body: JSON.stringify(cfg),
-        });
-        const { hash } = await res.json();
-        refreshPreview(hash);
-      }, 150);
-    }
-    for (const el of inputs) {
-      el.addEventListener('input', () => { set(cfg, el.dataset.cfg, coerce(el, el.value)); push(); });
-    }
-
-    // --- live preview helpers ------------------------------------------
-    async function refreshPreview(hash) {
-      const url = '/assets/css/stellar/' + (hash ?? 'current');
-      const css = await (await fetch(url)).text();
-      const count = (css.match(/--[a-z0-9-]+\s*:/gi) || []).length;
-      document.getElementById('meter').textContent =
-        `${count} tokens, ${new Blob([css]).size} bytes`;
-      // ramp swatches (read computed vars after the sheet applies)
-      requestAnimationFrame(() => {
-        const cs = getComputedStyle(document.documentElement);
-        const ramp = document.getElementById('ramp'); ramp.innerHTML = '';
-        for (let i = 1; i <= 12; i++) {
-          const c = cs.getPropertyValue('--primary-' + i).trim();
-          const on = cs.getPropertyValue('--primary-' + i + '-on').trim();
-          if (!c) continue;
-          const d = document.createElement('div');
-          d.className = 'swatch';
-          d.style.background = c; d.style.color = on; d.textContent = i;
-          ramp.appendChild(d);
-        }
-        const bars = document.getElementById('bars'); bars.innerHTML = '';
-        for (let n = -2; n <= 8; n++) {
-          const v = cs.getPropertyValue('--font-size-' + n).trim();
-          if (!v) continue;
-          const b = document.createElement('div');
-          b.className = 'bar';
-          b.style.height = `calc(${v} + .4rem)`;
-          b.textContent = ' font-size-' + n;
-          bars.appendChild(b);
-        }
-      });
-      // demo iframe links the live sheet
-      const demo = document.getElementById('demo');
-      demo.srcdoc = `<!doctype html><link rel="stylesheet" href="${url}">
-        <body style="font-family:var(--font-humanist,sans-serif);padding:1rem;
-          background:var(--neutral-1);color:var(--neutral-12)">
-        <h1 style="font-size:var(--font-size-6);color:var(--primary-8)">Stellar demo</h1>
-        <p style="font-size:var(--font-size-1);line-height:var(--font-line-height-0)">
-          Semantic, nested CSS that only references <code>var(--token)</code>.</p>
-        <button style="background:var(--primary-9);color:var(--primary-9-on);
-          border:0;padding:var(--size-1) var(--size-3);border-radius:var(--size--1)">
-          Primary action</button></body>`;
-    }
-
-    // --- palette extraction (§5.4) -------------------------------------
-    document.getElementById('imgfile').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const fd = new FormData();
-      fd.append('image', file);
-      const mode = document.getElementById('harmony').value;
-      const res = await fetch('/extract?harmony=' + mode, { method: 'POST', body: fd });
-      const { candidates, harmony } = await res.json();
-      const box = document.getElementById('candidates');
-      box.innerHTML = '';
-      for (const c of candidates) {
-        const d = document.createElement('div');
-        d.className = 'swatch';
-        d.style.background = c.css;
-        d.title = `${c.name} ${'★'.repeat(c.stars)} (${(c.population*100).toFixed(0)}%)`;
-        d.textContent = '★'.repeat(c.stars);
-        d.style.cursor = 'pointer';
-        d.addEventListener('click', () => {
-          // picking a candidate sets the role seeds via harmony
-          set(cfg, 'colors.roles.primary.seed', harmony[0] ?? c.css);
-          if (harmony[1]) set(cfg, 'colors.roles.secondary.seed', harmony[1]);
-          fill(); push();
-        });
-        box.appendChild(d);
-      }
-    });
-
-    // boot
-    (async () => {
-      cfg = await (await fetch('/config.json')).json();
-      fill();
-      refreshPreview('current');
-    })();
-  </script>
 </body>
 </html>
